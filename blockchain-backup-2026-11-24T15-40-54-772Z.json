@@ -1,0 +1,32 @@
+{
+  "format": "blocklab-blockchain-backup",
+  "version": 1,
+  "exportedAt": "2026-11-24T15:40:54.771Z",
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": "2026-11-24T15:40:46.958Z",
+      "transactions": [],
+      "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "nonce": 81,
+      "hash": "00add8d410feecfbd5e6a117b975d57e57d2a2583be9916960204af60c1fe73a"
+    },
+    {
+      "index": 1,
+      "timestamp": "2026-11-24T15:40:47.082Z",
+      "transactions": [
+        {
+          "sender": "An Nguyen",
+          "receiver": "Binh Tran",
+          "amount": "25",
+          "note": "Đã lưu thử IndexedDB",
+          "timestamp": "2026-11-24T15:40:47.046Z"
+        }
+      ],
+      "previousHash": "00add8d410feecfbd5e6a117b975d57e57d2a2583be9916960204af60c1fe73a",
+      "nonce": 477,
+      "hash": "00f823bd3208347c010a5f3453c48cbb993ca89b16fed5bacfae8ca9c6945688"
+    }
+  ],
+  "pendingTransactions": []
+}
