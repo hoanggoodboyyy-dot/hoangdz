@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b2d">
+  <title>Blockchain Explorer — Demo</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Blockchain Explorer trang chủ">
+        <span class="brand-mark" aria-hidden="true">B</span>
+        <span>BLOCK<span class="brand-accent">LAB</span></span>
+      </a>
+      <span class="network-badge"><span class="live-dot"></span> DEMO CỤC BỘ</span>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">MÔ HÌNH HỌC TẬP · SHA-256 · PROOF OF WORK</p>
+          <h1>Blockchain Explorer</h1>
+          <p class="intro-copy">Tạo giao dịch, khai thác Block và quan sát cách chuỗi phát hiện dữ liệu bị thay đổi.</p>
+        </div>
+        <div class="chain-state" id="chain-state">
+          <span class="state-indicator" aria-hidden="true"></span>
+          <span id="chain-state-text">Đang khởi tạo...</span>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Tổng quan Blockchain">
+        <article class="stat-card">
+          <span class="stat-label">TỔNG SỐ BLOCK</span>
+          <strong class="stat-value" id="block-count">0</strong>
+          <span class="stat-foot">Bao gồm Genesis Block</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">GIAO DỊCH CHỜ</span>
+          <strong class="stat-value" id="pending-count">0</strong>
+          <span class="stat-foot">Sẽ được ghi vào Block kế tiếp</span>
+        </article>
+        <article class="stat-card stat-card-wide">
+          <span class="stat-label">THUẬT TOÁN BĂM</span>
+          <strong class="stat-value stat-algorithm">SHA-256 <span>·</span> PoW <span class="difficulty">2 số 0</span></strong>
+          <span class="stat-foot">Độ khó thấp để minh họa, không dùng trong thực tế</span>
+        </article>
+      </section>
+
+      <section class="storage-bar" aria-label="Lưu trữ và sao lưu dữ liệu">
+        <div class="storage-info">
+          <span class="storage-icon" aria-hidden="true">▤</span>
+          <div>
+            <span class="storage-title">LƯU TRỮ DỮ LIỆU</span>
+            <span class="storage-status" id="storage-status">Đang kết nối cơ sở dữ liệu...</span>
+          </div>
+        </div>
+        <div class="storage-actions">
+          <button class="button button-quiet" id="export-backup" type="button">Tải file JSON</button>
+          <button class="button button-quiet" id="import-backup" type="button">Nhập file JSON</button>
+          <input id="backup-file" type="file" accept=".json,application/json" hidden>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Công cụ Blockchain">
+        <aside class="panel transaction-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="section-index">01 / GIAO DỊCH</span>
+              <h2>Tạo giao dịch</h2>
+            </div>
+            <span class="heading-icon" aria-hidden="true">＋</span>
+          </div>
+          <form id="transaction-form" novalidate>
+            <label for="sender">Người gửi</label>
+            <input id="sender" name="sender" type="text" maxlength="100" placeholder="Ví dụ: An" autocomplete="off" required>
+
+            <label for="receiver">Người nhận</label>
+            <input id="receiver" name="receiver" type="text" maxlength="100" placeholder="Ví dụ: Bình" autocomplete="off" required>
+
+            <label for="amount">Số lượng <span class="label-hint">(đơn vị mô phỏng)</span></label>
+            <input id="amount" name="amount" type="number" min="0.01" step="any" placeholder="25" inputmode="decimal" required>
+
+            <label for="note">Ghi chú <span class="label-hint">(không bắt buộc)</span></label>
+            <textarea id="note" name="note" maxlength="200" rows="3" placeholder="Nội dung giao dịch..."></textarea>
+
+            <button class="button button-primary button-full" id="add-transaction" type="submit">
+              <span aria-hidden="true">＋</span> Thêm vào danh sách chờ
+            </button>
+          </form>
+
+          <div class="pending-box">
+            <div class="pending-heading">
+              <span>GIAO DỊCH CHỜ</span>
+              <span class="pending-counter" id="pending-counter">0</span>
+            </div>
+            <div class="pending-list" id="pending-list">
+              <p class="empty-hint">Chưa có giao dịch nào đang chờ.</p>
+            </div>
+          </div>
+        </aside>
+
+        <section class="panel explorer-panel">
+          <div class="panel-heading explorer-heading">
+            <div>
+              <span class="section-index">02 / CHUỖI KHỐI</span>
+              <h2>Blockchain</h2>
+            </div>
+            <div class="toolbar">
+              <button class="button button-quiet" id="verify-chain" type="button">
+                <span aria-hidden="true">✓</span> Kiểm tra chuỗi
+              </button>
+              <button class="button button-primary" id="mine-block" type="button">
+                <span aria-hidden="true">⛏</span> Tạo Block
+              </button>
+              <button class="button button-icon" id="reset-chain" type="button" aria-label="Khởi tạo lại Blockchain" title="Khởi tạo lại">
+                ↻
+              </button>
+            </div>
+          </div>
+
+          <div class="explorer-grid">
+            <section class="block-list-section" aria-labelledby="block-list-title">
+              <div class="subsection-heading">
+                <h3 id="block-list-title">Danh sách Block</h3>
+                <span id="list-count">0 khối</span>
+              </div>
+              <ul class="block-list" id="block-list" aria-label="Danh sách các Block"></ul>
+            </section>
+
+            <section class="details-section" aria-labelledby="details-title">
+              <div class="subsection-heading">
+                <h3 id="details-title">Chi tiết Block</h3>
+                <span class="detail-label" id="detail-label">CHỌN MỘT BLOCK</span>
+              </div>
+              <div class="details-content" id="block-details">
+                <div class="details-empty">
+                  <span class="empty-cube" aria-hidden="true">◇</span>
+                  <p>Chọn một Block để xem dữ liệu và các giao dịch.</p>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <form class="tamper-editor" id="tamper-editor" hidden>
+            <div class="tamper-editor-heading">
+              <div>
+                <span class="section-index">THỬ NGHIỆM</span>
+                <h3>Sửa dữ liệu giao dịch</h3>
+              </div>
+              <button class="button button-icon" id="cancel-tamper" type="button" aria-label="Đóng biểu mẫu">×</button>
+            </div>
+            <label for="tamper-transaction">Giao dịch cần sửa</label>
+            <select id="tamper-transaction" required></select>
+            <label for="tamper-note">Ghi chú mới</label>
+            <textarea id="tamper-note" maxlength="200" rows="2" required></textarea>
+            <div class="tamper-editor-actions">
+              <button class="button button-quiet" id="cancel-tamper-action" type="button">Hủy</button>
+              <button class="button button-danger-quiet" type="submit">Áp dụng sửa thử</button>
+            </div>
+          </form>
+
+          <div class="explorer-footer">
+            <button class="button button-danger-quiet" id="tamper-block" type="button" disabled>
+              Mô phỏng sửa dữ liệu
+            </button>
+            <p>Chỉ sửa thử trên dữ liệu trong bộ nhớ của trình duyệt.</p>
+          </div>
+        </section>
+      </section>
+
+      <div class="notice" id="notice" role="status" aria-live="polite">
+        <span class="notice-icon" aria-hidden="true">i</span>
+        <span id="notice-text">Đang khởi tạo Blockchain...</span>
+      </div>
+    </main>
+
+    <footer class="page-footer">
+      <span>BLOCKLAB <span class="footer-divider">/</span> BẢN DEMO HỌC TẬP</span>
+      <span>Dữ liệu không đại diện cho giao dịch tiền thật.</span>
+    </footer>
+  </div>
+</body>
+</html>
